@@ -191,10 +191,13 @@ void ILI9341_init(void)
 	transaction[5].flags = 0;
 }
 
-void ILI9341_draw_buffer(uint16_t buffer[ILI9341_HEIGHT * ILI9341_WIDTH])
+void ILI9341_set_buffer(uint16_t buffer[ILI9341_WIDTH * ILI9341_HEIGHT])
 {
 	transaction[5].tx_buffer = buffer;
+}
 
+void ILI9341_draw_buffer(void)
+{
 	for (int i= 0; i < SPI_QUEUE_SIZE; i++)
 	{
 		spi_device_queue_trans(spi, &transaction[i], portMAX_DELAY);

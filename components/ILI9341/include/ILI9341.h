@@ -8,7 +8,9 @@
 
 void ILI9341_init(void);
 
-void ILI9341_draw_buffer(uint16_t buffer[ILI9341_WIDTH * ILI9341_HEIGHT]);
+void ILI9341_set_buffer(uint16_t buffer[ILI9341_WIDTH * ILI9341_HEIGHT]);
+
+void ILI9341_draw_buffer(void);
 
 void ILI9341_wait_for_draw_complete(void);
 

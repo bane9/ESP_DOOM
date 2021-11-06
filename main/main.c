@@ -18,6 +18,8 @@ void app_main(void)
 
     uint16_t* buffer = malloc(ILI9341_WIDTH * ILI9341_HEIGHT * sizeof(uint16_t));
 
+    ILI9341_set_buffer(buffer);
+
     while(1)
     {
 		for(int i = 0; i < ILI9341_HEIGHT * ILI9341_WIDTH; i++)
@@ -25,7 +27,7 @@ void app_main(void)
 			buffer[i] = rand();
 		}
 
-		ILI9341_draw_buffer(buffer);
+		ILI9341_draw_buffer();
 
 		ILI9341_wait_for_draw_complete();
     }
