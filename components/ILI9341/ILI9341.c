@@ -187,6 +187,12 @@ void ILI9341_init(void)
 	transaction[3].tx_data[2] = ILI9341_HEIGHT >> 8;
 	transaction[3].tx_data[3] = ILI9341_HEIGHT & 0xff;
 	transaction[4].tx_data[0] = 0x2C;
+
+	for(int i = 0; i < SPI_QUEUE_SIZE - 1; i++)
+	{
+		spi_device_transmit(spi, &transaction[i]);
+	}
+
 	transaction[5].length = ILI9341_WIDTH * ILI9341_HEIGHT * sizeof(uint16_t) * 8;
 	transaction[5].flags = 0;
 }
@@ -198,18 +204,12 @@ void ILI9341_set_buffer(uint16_t buffer[ILI9341_WIDTH * ILI9341_HEIGHT])
 
 void ILI9341_draw_buffer(void)
 {
-	for (int i= 0; i < SPI_QUEUE_SIZE; i++)
-	{
-		spi_device_queue_trans(spi, &transaction[i], portMAX_DELAY);
-	}
+	spi_device_queue_trans(spi, &transaction[SPI_QUEUE_SIZE - 1], portMAX_DELAY);
 }
 
 void ILI9341_wait_for_draw_complete(void)
 {
 	spi_transaction_t* rtrans;
 
-	for (int x = 0; x < SPI_QUEUE_SIZE; x++)
-	{
-		spi_device_get_trans_result(spi, &rtrans, portMAX_DELAY);
-	}
+	spi_device_get_trans_result(spi, &rtrans, portMAX_DELAY);
 }
