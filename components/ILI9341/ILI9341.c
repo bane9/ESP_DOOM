@@ -27,6 +27,7 @@ typedef struct
     uint8_t databytes;
 } lcd_init_cmd_t;
 
+static spi_transaction_t transaction[SPI_QUEUE_SIZE];
 
 DRAM_ATTR static const lcd_init_cmd_t ili_init_cmds[] =
 {
@@ -73,7 +74,7 @@ static void lcd_cmd(spi_device_handle_t spi, const uint8_t cmd)
     assert(ret == ESP_OK);
 }
 
-static void lcd_data(spi_device_handle_t spi, const uint8_t *data, int len)
+static void lcd_data(spi_device_handle_t spi, const uint8_t* data, int len)
 {
     esp_err_t ret;
     spi_transaction_t t;
@@ -158,50 +159,45 @@ void ILI9341_init(void)
 	}
 
 	gpio_set_level(PIN_NUM_BCKL, 0);
-}
-
-void ILI9341_draw_buffer(uint16_t buffer[ILI9341_HEIGHT * ILI9341_WIDTH])
-{
-	static spi_transaction_t trans[SPI_QUEUE_SIZE];
-	esp_err_t ret;
-
-	memset(trans, 0, sizeof(trans));
 
 	for (int i = 0; i < 6; i++)
 	{
 		if ((i & 1) == 0)
 		{
-			trans[i].length = 8;
-			trans[i].user = (void*) 0;
+			transaction[i].length = 8;
+			transaction[i].user = (void*) 0;
 		}
 		else
 		{
-			trans[i].length = 8 * 4;
-			trans[i].user = (void*) 1;
+			transaction[i].length = 8 * 4;
+			transaction[i].user = (void*) 1;
 		}
 
-		trans[i].flags= 1 << 3;
+		transaction[i].flags= 1 << 3;
 	}
 
-	trans[0].tx_data[0] = 0x2A;
-	trans[1].tx_data[0] = 0;
-	trans[1].tx_data[1] = 0;
-	trans[1].tx_data[2] = ILI9341_WIDTH >> 8;
-	trans[1].tx_data[3] = ILI9341_WIDTH & 0xff;
-	trans[2].tx_data[0] = 0x2B;
-	trans[3].tx_data[0] = 0;
-	trans[3].tx_data[1] = 0;
-	trans[3].tx_data[2] = ILI9341_HEIGHT >> 8;
-	trans[3].tx_data[3] = ILI9341_HEIGHT & 0xff;
-	trans[4].tx_data[0] = 0x2C;
-	trans[5].tx_buffer = buffer;
-	trans[5].length = ILI9341_WIDTH * ILI9341_HEIGHT * sizeof(uint16_t) * 8;
-	trans[5].flags = 0;
+	transaction[0].tx_data[0] = 0x2A;
+	transaction[1].tx_data[0] = 0;
+	transaction[1].tx_data[1] = 0;
+	transaction[1].tx_data[2] = ILI9341_WIDTH >> 8;
+	transaction[1].tx_data[3] = ILI9341_WIDTH & 0xff;
+	transaction[2].tx_data[0] = 0x2B;
+	transaction[3].tx_data[0] = 0;
+	transaction[3].tx_data[1] = 0;
+	transaction[3].tx_data[2] = ILI9341_HEIGHT >> 8;
+	transaction[3].tx_data[3] = ILI9341_HEIGHT & 0xff;
+	transaction[4].tx_data[0] = 0x2C;
+	transaction[5].length = ILI9341_WIDTH * ILI9341_HEIGHT * sizeof(uint16_t) * 8;
+	transaction[5].flags = 0;
+}
+
+void ILI9341_draw_buffer(uint16_t buffer[ILI9341_HEIGHT * ILI9341_WIDTH])
+{
+	transaction[5].tx_buffer = buffer;
 
 	for (int i= 0; i < SPI_QUEUE_SIZE; i++)
 	{
-		ret = spi_device_queue_trans(spi, &trans[i], portMAX_DELAY);
-		assert(ret == ESP_OK);
+		spi_device_queue_trans(spi, &transaction[i], portMAX_DELAY);
 	}
 }
 
