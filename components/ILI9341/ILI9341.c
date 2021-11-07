@@ -18,8 +18,6 @@
 #define PIN_NUM_RST  18
 #define PIN_NUM_BCKL 5
 
-#define SPI_QUEUE_SIZE 1
-
 typedef struct
 {
     uint8_t cmd;
