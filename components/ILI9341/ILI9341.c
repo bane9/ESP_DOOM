@@ -27,6 +27,7 @@ typedef struct
     uint8_t databytes;
 } lcd_init_cmd_t;
 
+static spi_device_handle_t spi;
 static spi_transaction_t frame_buffer_transaction;
 
 static void lcd_cmd(spi_device_handle_t spi, const uint8_t cmd)
@@ -66,27 +67,6 @@ static void lcd_data(spi_device_handle_t spi, const uint8_t* data, int len)
     assert(ret == ESP_OK);
 }
 
-static spi_device_handle_t spi;
-static const spi_bus_config_t buscfg =
-{
-	.miso_io_num = PIN_NUM_MISO,
-	.mosi_io_num = PIN_NUM_MOSI,
-	.sclk_io_num = PIN_NUM_CLK,
-	.quadwp_io_num = -1,
-	.quadhd_io_num = -1,
-	.max_transfer_sz = ILI9341_HEIGHT * ILI9341_WIDTH * sizeof(uint16_t)
-};
-
-static const spi_device_interface_config_t devcfg =
-{
-	.clock_speed_hz = 80 * 1000 * 1000,
-	.mode = 0,
-	.spics_io_num = PIN_NUM_CS,
-	.queue_size = SPI_QUEUE_SIZE + 1,
-	.flags = 1 << 6
-};
-
-
 void ILI9341_init(void)
 {
 	const lcd_init_cmd_t lcd_init_cmds[] =
@@ -116,6 +96,25 @@ void ILI9341_init(void)
 	    {0x11, {0}, 0x80},
 	    {0x29, {0}, 0x80},
 	    {0, {0}, 0xff},
+	};
+
+	const spi_bus_config_t buscfg =
+	{
+		.miso_io_num = PIN_NUM_MISO,
+		.mosi_io_num = PIN_NUM_MOSI,
+		.sclk_io_num = PIN_NUM_CLK,
+		.quadwp_io_num = -1,
+		.quadhd_io_num = -1,
+		.max_transfer_sz = ILI9341_HEIGHT * ILI9341_WIDTH * sizeof(uint16_t)
+	};
+
+	const spi_device_interface_config_t devcfg =
+	{
+		.clock_speed_hz = 80 * 1000 * 1000,
+		.mode = 0,
+		.spics_io_num = PIN_NUM_CS,
+		.queue_size = 1,
+		.flags = 1 << 6
 	};
 
 	esp_err_t ret;
