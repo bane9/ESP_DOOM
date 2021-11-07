@@ -38,9 +38,10 @@ static void lcd_cmd(spi_device_handle_t spi, const uint8_t cmd)
 
     t.length = 8;
     t.tx_buffer = &cmd;
-    t.user=(void*) 0;
-    ret=spi_device_transmit(spi, &t);
 
+    gpio_set_level(PIN_NUM_DC, 0);
+
+    ret = spi_device_transmit(spi, &t);
     assert(ret == ESP_OK);
 }
 
@@ -58,16 +59,11 @@ static void lcd_data(spi_device_handle_t spi, const uint8_t* data, int len)
 
     t.length = len * 8;
     t.tx_buffer = data;
-    t.user = (void*) 1;
+
+    gpio_set_level(PIN_NUM_DC, 1);
 
     ret = spi_device_transmit(spi, &t);
     assert(ret == ESP_OK);
-}
-
-static void lcd_spi_pre_transfer_callback(spi_transaction_t* t)
-{
-    int dc = (int) t->user;
-    gpio_set_level(PIN_NUM_DC, dc);
 }
 
 static spi_device_handle_t spi;
@@ -87,7 +83,6 @@ static const spi_device_interface_config_t devcfg =
 	.mode = 0,
 	.spics_io_num = PIN_NUM_CS,
 	.queue_size = SPI_QUEUE_SIZE + 1,
-	.pre_cb = lcd_spi_pre_transfer_callback,
 	.flags = 1 << 6
 };
 
@@ -164,12 +159,10 @@ void ILI9341_init(void)
 		if ((i & 1) == 0)
 		{
 			transaction[i].length = 8;
-			transaction[i].user = (void*) 0;
 		}
 		else
 		{
 			transaction[i].length = 8 * 4;
-			transaction[i].user = (void*) 1;
 		}
 
 		transaction[i].flags= 1 << 3;
@@ -189,12 +182,14 @@ void ILI9341_init(void)
 
 	for(int i = 0; i < 5; i++)
 	{
+		gpio_set_level(PIN_NUM_DC, i & 1);
 		spi_device_transmit(spi, &transaction[i]);
 	}
 
 	frame_buffer_transaction.length = ILI9341_WIDTH * ILI9341_HEIGHT * sizeof(uint16_t) * 8;
 	frame_buffer_transaction.flags = 0;
-	frame_buffer_transaction.user = (void*) 1;
+
+	gpio_set_level(PIN_NUM_DC, 1);
 }
 
 void ILI9341_set_buffer(uint16_t buffer[ILI9341_WIDTH * ILI9341_HEIGHT])
