@@ -93,7 +93,9 @@ void ILI9341_init(void)
 	    {0xB6, {0x0A, 0x82, 0x27, 0x00}, 4},
 	    {0x11, {0}, 0x80},
 	    {0x29, {0}, 0x80},
-	    {0, {0}, 0xff},
+		{0x2A, {0, 0, ILI9341_WIDTH >> 8, ILI9341_WIDTH & 0xff}, 4},
+		{0x2B, {0, 0, ILI9341_HEIGHT >> 8, ILI9341_HEIGHT & 0xff}, 4},
+		{0x2C, {0}, 0},
 	};
 
 	const spi_bus_config_t buscfg =
@@ -116,8 +118,6 @@ void ILI9341_init(void)
 	};
 
 	esp_err_t ret;
-	spi_transaction_t transaction[5] = {};
-	int cmd = 0;
 
 	ret = spi_bus_initialize(1, &buscfg, 1);
 	assert(ret == ESP_OK);
@@ -135,53 +135,19 @@ void ILI9341_init(void)
 	gpio_set_level(PIN_NUM_RST, 1);
 	vTaskDelay(100 / portTICK_RATE_MS);
 
-	while (lcd_init_cmds[cmd].databytes != 0xff)
+	for (int i = 0; i < sizeof(lcd_init_cmds) / sizeof(lcd_init_cmds[0]); i++)
 	{
-		lcd_cmd(spi, lcd_init_cmds[cmd].cmd);
+		lcd_cmd(spi, lcd_init_cmds[i].cmd);
 
-		lcd_data(spi, lcd_init_cmds[cmd].data, lcd_init_cmds[cmd].databytes & 0x1F);
+		lcd_data(spi, lcd_init_cmds[i].data, lcd_init_cmds[i].databytes & 0x1F);
 
-		if (lcd_init_cmds[cmd].databytes & 0x80)
+		if (lcd_init_cmds[i].databytes & 0x80)
 		{
 			vTaskDelay(100 / portTICK_RATE_MS);
 		}
-
-		cmd++;
 	}
 
 	gpio_set_level(PIN_NUM_BCKL, 0);
-
-	for (int i = 0; i < 5; i++)
-	{
-		if ((i & 1) == 0)
-		{
-			transaction[i].length = 8;
-		}
-		else
-		{
-			transaction[i].length = 8 * 4;
-		}
-
-		transaction[i].flags= 1 << 3;
-	}
-
-	transaction[0].tx_data[0] = 0x2A;
-	transaction[1].tx_data[0] = 0;
-	transaction[1].tx_data[1] = 0;
-	transaction[1].tx_data[2] = ILI9341_WIDTH >> 8;
-	transaction[1].tx_data[3] = ILI9341_WIDTH & 0xff;
-	transaction[2].tx_data[0] = 0x2B;
-	transaction[3].tx_data[0] = 0;
-	transaction[3].tx_data[1] = 0;
-	transaction[3].tx_data[2] = ILI9341_HEIGHT >> 8;
-	transaction[3].tx_data[3] = ILI9341_HEIGHT & 0xff;
-	transaction[4].tx_data[0] = 0x2C;
-
-	for(int i = 0; i < 5; i++)
-	{
-		gpio_set_level(PIN_NUM_DC, i & 1);
-		spi_device_transmit(spi, &transaction[i]);
-	}
 
 	frame_buffer_transaction.length = ILI9341_WIDTH * ILI9341_HEIGHT * sizeof(uint16_t) * 8;
 	frame_buffer_transaction.flags = 0;
