@@ -160,7 +160,7 @@ wad_file_t *W_AddFile (char *filename)
 
     newnumlumps = numlumps;
 
-    if (strcasecmp(filename+strlen(filename)-3 , "wad" ) )
+    if (strcasecmp(filename+strlen(filename)-3 , "wad" ))
     {
     	// single lump file
 
