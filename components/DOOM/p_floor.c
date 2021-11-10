@@ -1,25 +1,21 @@
-// Emacs style mode select   -*- C++ -*- 
-//-----------------------------------------------------------------------------
 //
-// $Id:$
+// Copyright(C) 1993-1996 Id Software, Inc.
+// Copyright(C) 2005-2014 Simon Howard
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
-//
-// The source is distributed in the hope that it will be useful,
+// This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
-//
-// $Log:$
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 //
 // DESCRIPTION:
 //	Floor animation: raising stairs.
 //
-//-----------------------------------------------------------------------------
+
 
 
 #include "z_zone.h"
@@ -213,8 +209,7 @@ void T_MoveFloor(floormove_t* floor)
 		      floor->crush,0,floor->direction);
     
     if (!(leveltime&7))
-	S_StartSound((mobj_t *)&floor->sector->soundorg,
-		     sfx_stnmov);
+	S_StartSound(&floor->sector->soundorg, sfx_stnmov);
     
     if (res == pastdest)
     {
@@ -227,7 +222,6 @@ void T_MoveFloor(floormove_t* floor)
 	      case donutRaise:
 		floor->sector->special = floor->newspecial;
 		floor->sector->floorpic = floor->texture;
-		//no break
 	      default:
 		break;
 	    }
@@ -239,15 +233,13 @@ void T_MoveFloor(floormove_t* floor)
 	      case lowerAndChange:
 		floor->sector->special = floor->newspecial;
 		floor->sector->floorpic = floor->texture;
-		//no break
 	      default:
 		break;
 	    }
 	}
 	P_RemoveThinker(&floor->thinker);
 
-	S_StartSound((mobj_t *)&floor->sector->soundorg,
-		     sfx_pstop);
+	S_StartSound(&floor->sector->soundorg, sfx_pstop);
     }
 
 }
@@ -314,11 +306,8 @@ EV_DoFloor
 	    break;
 
 	  case raiseFloorCrush:
+	    floor->crush = true;
 	  case raiseFloor:
-		if(floortype == raiseFloorCrush)
-		{
-			floor->crush = true;
-		}
 	    floor->direction = 1;
 	    floor->sector = sec;
 	    floor->speed = FLOORSPEED;
@@ -373,7 +362,7 @@ EV_DoFloor
 
 	  case raiseToTexture:
 	  {
-	      int	minsize = MAXINT;
+	      int	minsize = INT_MAX;
 	      side_t*	side;
 				
 	      floor->direction = 1;
@@ -438,7 +427,6 @@ EV_DoFloor
 		    }
 		}
 	    }
-	    //no break
 	  default:
 	    break;
 	}
@@ -465,10 +453,10 @@ EV_BuildStairs
     int			ok;
     int			rtn;
     
-    sector_t*		sec = NULL;
-    sector_t*		tsec = NULL;
+    sector_t*		sec;
+    sector_t*		tsec;
 
-    floormove_t*	floor = NULL;
+    floormove_t*	floor;
     
     fixed_t		stairsize = 0;
     fixed_t		speed = 0;

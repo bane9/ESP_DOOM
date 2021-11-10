@@ -1,34 +1,9 @@
-/* SPI Master example
-
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
-#include "../components/ILI9341/include/ILI9341.h"
-#include <stdlib.h>
-#include <math.h>
-#include "esp_timer.h"
-#include "esp_system.h"
-
 void app_main(void)
 {
-    ILI9341_init();
+	extern int doom_main(int argc, char **argv);
 
-    uint16_t* buffer = malloc(ILI9341_WIDTH * ILI9341_HEIGHT * sizeof(uint16_t));
+	char* argv[] = {"doom", "-mb", "3","-iwad", "doom1.wad", 0};
+	int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
-    ILI9341_set_buffer(buffer);
-
-    while(1)
-    {
-		for(int i = 0; i < ILI9341_HEIGHT * ILI9341_WIDTH; i++)
-		{
-			buffer[i] = rand();
-		}
-
-		ILI9341_draw_buffer();
-
-		ILI9341_wait_for_draw_complete();
-    }
+	doom_main(argc, argv);
 }

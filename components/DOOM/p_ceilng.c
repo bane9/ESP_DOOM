@@ -1,24 +1,20 @@
-// Emacs style mode select   -*- C++ -*- 
-//-----------------------------------------------------------------------------
 //
-// $Id:$
+// Copyright(C) 1993-1996 Id Software, Inc.
+// Copyright(C) 2005-2014 Simon Howard
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
-//
-// The source is distributed in the hope that it will be useful,
+// This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
-//
-// $Log:$
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 //
 // DESCRIPTION:  Ceiling aninmation (lowering, crushing, raising)
 //
-//-----------------------------------------------------------------------------
+
 
 
 #include "z_zone.h"
@@ -69,8 +65,7 @@ void T_MoveCeiling (ceiling_t* ceiling)
 	      case silentCrushAndRaise:
 		break;
 	      default:
-		S_StartSound((mobj_t *)&ceiling->sector->soundorg,
-			     sfx_stnmov);
+		S_StartSound(&ceiling->sector->soundorg, sfx_stnmov);
 		// ?
 		break;
 	    }
@@ -85,9 +80,7 @@ void T_MoveCeiling (ceiling_t* ceiling)
 		break;
 		
 	      case silentCrushAndRaise:
-		S_StartSound((mobj_t *)&ceiling->sector->soundorg,
-			     sfx_pstop);
-		/* fall through */
+		S_StartSound(&ceiling->sector->soundorg, sfx_pstop);
 	      case fastCrushAndRaise:
 	      case crushAndRaise:
 		ceiling->direction = -1;
@@ -113,8 +106,7 @@ void T_MoveCeiling (ceiling_t* ceiling)
 	    {
 	      case silentCrushAndRaise: break;
 	      default:
-		S_StartSound((mobj_t *)&ceiling->sector->soundorg,
-			     sfx_stnmov);
+		S_StartSound(&ceiling->sector->soundorg, sfx_stnmov);
 	    }
 	}
 	
@@ -123,12 +115,9 @@ void T_MoveCeiling (ceiling_t* ceiling)
 	    switch(ceiling->type)
 	    {
 	      case silentCrushAndRaise:
-		S_StartSound((mobj_t *)&ceiling->sector->soundorg,
-			     sfx_pstop);
-		/* fall through */
+		S_StartSound(&ceiling->sector->soundorg, sfx_pstop);
 	      case crushAndRaise:
 		ceiling->speed = CEILSPEED;
-		/* fall through */
 	      case fastCrushAndRaise:
 		ceiling->direction = 1;
 		break;
@@ -188,7 +177,6 @@ EV_DoCeiling
       case silentCrushAndRaise:
       case crushAndRaise:
 	P_ActivateInStasisCeiling(line);
-	//no break
       default:
 	break;
     }
@@ -222,7 +210,6 @@ EV_DoCeiling
 	  case crushAndRaise:
 	    ceiling->crush = true;
 	    ceiling->topheight = sec->ceilingheight;
-	    //no break
 	  case lowerAndCrush:
 	  case lowerToFloor:
 	    ceiling->bottomheight = sec->floorheight;

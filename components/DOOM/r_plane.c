@@ -1,28 +1,25 @@
-// Emacs style mode select   -*- C++ -*- 
-//-----------------------------------------------------------------------------
 //
-// $Id:$
+// Copyright(C) 1993-1996 Id Software, Inc.
+// Copyright(C) 2005-2014 Simon Howard
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
-//
-// The source is distributed in the hope that it will be useful,
+// This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
-//
-// $Log:$
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 //
 // DESCRIPTION:
 //	Here is a core component: drawing the floors and ceilings,
 //	 while maintaining a per column clipping list only.
 //	Moreover, the sky areas have to be determined.
 //
-//-----------------------------------------------------------------------------
 
+
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "i_system.h"
@@ -46,14 +43,14 @@ planefunction_t		ceilingfunc;
 
 // Here comes the obnoxious "visplane".
 #define MAXVISPLANES	128
-visplane_t		visplanes[MAXVISPLANES];
+visplane_t*		visplanes;
 visplane_t*		lastvisplane;
 visplane_t*		floorplane;
 visplane_t*		ceilingplane;
 
 // ?
 #define MAXOPENINGS	SCREENWIDTH*64
-short			openings[MAXOPENINGS];
+short*			openings;
 short*			lastopening;
 
 
@@ -62,15 +59,15 @@ short*			lastopening;
 //  floorclip starts out SCREENHEIGHT
 //  ceilingclip starts out -1
 //
-short			floorclip[SCREENWIDTH];
-short			ceilingclip[SCREENWIDTH];
+short*			floorclip;
+short*			ceilingclip;
 
 //
 // spanstart holds the start of a plane span
 // initialized to 0 at start
 //
-int			spanstart[SCREENHEIGHT];
-int			spanstop[SCREENHEIGHT];
+int*		    spanstart;
+int*			spanstop;
 
 //
 // texture mapping
@@ -78,17 +75,36 @@ int			spanstop[SCREENHEIGHT];
 lighttable_t**		planezlight;
 fixed_t			planeheight;
 
-fixed_t			yslope[SCREENHEIGHT];
-fixed_t			distscale[SCREENWIDTH];
+fixed_t*			yslope;
+fixed_t*			distscale;
 fixed_t			basexscale;
 fixed_t			baseyscale;
 
-fixed_t			cachedheight[SCREENHEIGHT];
-fixed_t			cacheddistance[SCREENHEIGHT];
-fixed_t			cachedxstep[SCREENHEIGHT];
-fixed_t			cachedystep[SCREENHEIGHT];
+fixed_t*			cachedheight;
+fixed_t*			cacheddistance;
+fixed_t*			cachedxstep;
+fixed_t*			cachedystep;
 
+void R_PlaneInit(void)
+{
+	visplanes = malloc(sizeof(visplane_t[MAXVISPLANES]));
 
+	openings = malloc(sizeof(short[MAXOPENINGS]));
+
+	floorclip = malloc(sizeof(short[SCREENWIDTH]));
+	ceilingclip = malloc(sizeof(short[SCREENWIDTH]));
+
+	spanstart = malloc(sizeof(int[SCREENHEIGHT]));
+	spanstop = malloc(sizeof(int[SCREENHEIGHT]));
+
+	yslope = malloc(sizeof(fixed_t[SCREENHEIGHT]));
+	distscale = malloc(sizeof(fixed_t[SCREENWIDTH]));
+
+	cachedheight = malloc(sizeof(fixed_t[SCREENHEIGHT]));
+	cacheddistance = malloc(sizeof(fixed_t[SCREENHEIGHT]));
+	cachedxstep = malloc(sizeof(fixed_t[SCREENHEIGHT]));
+	cachedystep = malloc(sizeof(fixed_t[SCREENHEIGHT]));
+}
 
 //
 // R_InitPlanes
@@ -96,7 +112,7 @@ fixed_t			cachedystep[SCREENHEIGHT];
 //
 void R_InitPlanes (void)
 {
-  // Doh!
+
 }
 
 
@@ -126,9 +142,9 @@ R_MapPlane
 	
 #ifdef RANGECHECK
     if (x2 < x1
-	|| x1<0
-	|| x2>=viewwidth
-	|| (unsigned)y>viewheight)
+     || x1 < 0
+     || x2 >= viewwidth
+     || y > viewheight)
     {
 	I_Error ("R_MapPlane: %i, %i at %i",x1,x2,y);
     }
@@ -194,7 +210,7 @@ void R_ClearPlanes (void)
     lastopening = openings;
     
     // texture calculation
-    memset (cachedheight, 0, sizeof(cachedheight));
+    memset (cachedheight, 0, sizeof(fixed_t[SCREENHEIGHT]));
 
     // left to right mapping
     angle = (viewangle-ANG90)>>ANGLETOFINESHIFT;
@@ -367,6 +383,7 @@ void R_DrawPlanes (void)
     int			x;
     int			stop;
     int			angle;
+    int                 lumpnum;
 				
 #ifdef RANGECHECK
     if (ds_p - drawsegs > MAXDRAWSEGS)
@@ -416,9 +433,8 @@ void R_DrawPlanes (void)
 	}
 	
 	// regular flat
-	ds_source = W_CacheLumpNum(firstflat +
-				   flattranslation[pl->picnum],
-				   PU_STATIC);
+        lumpnum = firstflat + flattranslation[pl->picnum];
+	ds_source = W_CacheLumpNum(lumpnum, PU_STATIC);
 	
 	planeheight = abs(pl->height-viewz);
 	light = (pl->lightlevel >> LIGHTSEGSHIFT)+extralight;
@@ -444,6 +460,6 @@ void R_DrawPlanes (void)
 			pl->bottom[x]);
 	}
 	
-	Z_ChangeTag (ds_source, PU_CACHE);
+        W_ReleaseLumpNum(lumpnum);
     }
 }
