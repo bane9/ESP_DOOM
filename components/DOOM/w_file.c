@@ -47,7 +47,7 @@ wad_file_t wad_file;
 wad_file_t *W_OpenFile(char *path)
 {
 	wad_file.file_class = NULL;
-	wad_file.length = 230497;
+	wad_file.length = wad_partition_size;
 	wad_file.mapped = (byte*) wad_partition_ptr;
 
     return &wad_file;
@@ -61,7 +61,7 @@ void W_CloseFile(wad_file_t *wad)
 size_t W_Read(wad_file_t *wad, unsigned int offset,
               void *buffer, size_t buffer_len)
 {
-	memcpy(buffer, wad_partition_ptr, buffer_len);
+	memcpy(buffer, wad_partition_ptr + offset, buffer_len);
 
     return buffer_len;
 }
