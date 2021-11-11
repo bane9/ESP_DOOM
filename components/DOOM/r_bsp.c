@@ -48,7 +48,7 @@ drawseg_t*	ds_p;
 
 void R_DrawSegsInit(void)
 {
-	drawsegs = malloc(sizeof(drawseg_t[MAXDRAWSEGS]));
+	drawsegs = calloc(MAXDRAWSEGS, sizeof(drawseg_t));
 }
 
 void

@@ -87,23 +87,18 @@ fixed_t*			cachedystep;
 
 void R_PlaneInit(void)
 {
-	visplanes = malloc(sizeof(visplane_t[MAXVISPLANES]));
-
-	openings = malloc(sizeof(short[MAXOPENINGS]));
-
-	floorclip = malloc(sizeof(short[SCREENWIDTH]));
-	ceilingclip = malloc(sizeof(short[SCREENWIDTH]));
-
-	spanstart = malloc(sizeof(int[SCREENHEIGHT]));
-	spanstop = malloc(sizeof(int[SCREENHEIGHT]));
-
-	yslope = malloc(sizeof(fixed_t[SCREENHEIGHT]));
-	distscale = malloc(sizeof(fixed_t[SCREENWIDTH]));
-
-	cachedheight = malloc(sizeof(fixed_t[SCREENHEIGHT]));
-	cacheddistance = malloc(sizeof(fixed_t[SCREENHEIGHT]));
-	cachedxstep = malloc(sizeof(fixed_t[SCREENHEIGHT]));
-	cachedystep = malloc(sizeof(fixed_t[SCREENHEIGHT]));
+	visplanes = calloc(MAXVISPLANES, sizeof(visplane_t));
+	openings = calloc(MAXOPENINGS, sizeof(short));
+	floorclip = calloc(SCREENWIDTH, sizeof(short));
+	ceilingclip = calloc(SCREENWIDTH, sizeof(short));
+	spanstart = calloc(SCREENHEIGHT, sizeof(int));
+	spanstop = calloc(SCREENHEIGHT, sizeof(int));
+	yslope = calloc(SCREENHEIGHT, sizeof(fixed_t));
+	distscale = calloc(SCREENWIDTH, sizeof(fixed_t));
+	cachedheight = calloc(SCREENHEIGHT, sizeof(fixed_t));
+	cacheddistance = calloc(SCREENHEIGHT, sizeof(fixed_t));
+	cachedxstep = calloc(SCREENHEIGHT, sizeof(fixed_t));
+	cachedystep = calloc(SCREENHEIGHT, sizeof(fixed_t));
 }
 
 //
