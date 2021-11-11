@@ -978,7 +978,7 @@ void ST_doPaletteStuff(void)
     }
 
     else if ( plyr->powers[pw_ironfeet] > 4*32
-	      || plyr->powers[pw_ironfeet]&8)
+	      || (plyr->powers[pw_ironfeet]&8))
 	palette = RADIATIONPAL;
     else
 	palette = 0;
