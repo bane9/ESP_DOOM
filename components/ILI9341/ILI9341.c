@@ -18,6 +18,8 @@
 #define PIN_NUM_RST  18
 #define PIN_NUM_BCKL 5
 
+#define TRANSACTION_INCREMENTS 120
+
 typedef struct
 {
     uint8_t cmd;
@@ -105,12 +107,12 @@ void ILI9341_init(void)
 		.sclk_io_num = PIN_NUM_CLK,
 		.quadwp_io_num = -1,
 		.quadhd_io_num = -1,
-		.max_transfer_sz = ILI9341_WIDTH * sizeof(uint16_t)
+		.max_transfer_sz = TRANSACTION_INCREMENTS * ILI9341_WIDTH * sizeof(uint16_t)
 	};
 
 	const spi_device_interface_config_t devcfg =
 	{
-		.clock_speed_hz = 60 * 1000 * 1000,
+		.clock_speed_hz = 80 * 1000 * 1000,
 		.mode = 0,
 		.spics_io_num = PIN_NUM_CS,
 		.queue_size = 1,
@@ -149,7 +151,7 @@ void ILI9341_init(void)
 
 	gpio_set_level(PIN_NUM_BCKL, 0);
 
-	frame_buffer_transaction.length = ILI9341_WIDTH * sizeof(uint16_t) * 8;
+	frame_buffer_transaction.length = TRANSACTION_INCREMENTS * ILI9341_WIDTH * sizeof(uint16_t) * 8;
 	frame_buffer_transaction.flags = 0;
 
 	gpio_set_level(PIN_NUM_DC, 1);
@@ -168,11 +170,11 @@ void ILI9341_draw_buffer(void)
 {
 	//spi_device_queue_trans(spi, &frame_buffer_transaction, portMAX_DELAY);
 
-	for(int y = 0; y < ILI9341_HEIGHT; y++)
+	for(int y = 0; y < ILI9341_HEIGHT; y += TRANSACTION_INCREMENTS)
 	{
 		const lcd_init_cmd_t lcd_init_cmds =
 		{
-			0x2B, {y >> 8, y & 0xff, (y + 1) >> 8, (y + 1) & 0xff}, 4,
+			0x2B, {y >> 8, y & 0xff, (y + TRANSACTION_INCREMENTS) >> 8, (y + TRANSACTION_INCREMENTS) & 0xff}, 4,
 		};
 
 		lcd_cmd(spi, lcd_init_cmds.cmd);
@@ -181,7 +183,7 @@ void ILI9341_draw_buffer(void)
 
 		lcd_cmd(spi, 0x2C);
 
-		lcd_data(spi, buffer_ + y * ILI9341_WIDTH, ILI9341_WIDTH * sizeof(uint16_t));
+		lcd_data(spi, (uint8_t*)(buffer_ + y * ILI9341_WIDTH), TRANSACTION_INCREMENTS * ILI9341_WIDTH * sizeof(uint16_t));
 	}
 }
 
