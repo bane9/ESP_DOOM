@@ -49,6 +49,8 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 
 //#define CMAP256
 
+#define SHOULD_RESCALE (!(SCREENWIDTH == DOOMGENERIC_RESX && SCREENHEIGHT == DOOMGENERIC_RESY))
+
 struct FB_BitField
 {
 	uint32_t offset;			/* beginning of bitfield	*/
@@ -194,7 +196,6 @@ void I_InitGraphics (void)
 	s_Fb.green.offset = 8;
 	s_Fb.red.offset = 16;
 	s_Fb.transp.offset = 24;
-	
 
     printf("I_InitGraphics: framebuffer: x_res: %d, y_res: %d, x_virtual: %d, y_virtual: %d, bpp: %d\n",
             s_Fb.xres, s_Fb.yres, s_Fb.xres_virtual, s_Fb.yres_virtual, s_Fb.bits_per_pixel);
@@ -219,7 +220,7 @@ void I_InitGraphics (void)
 
 
     /* Allocate screen to draw to */
-	I_VideoBuffer = (byte*)Z_Malloc (SCREENWIDTH * DOOMGENERIC_RESX, PU_STATIC, NULL);  // For DOOM to draw on
+	I_VideoBuffer = (byte*)Z_Malloc (SCREENWIDTH * SCREENHEIGHT, PU_STATIC, NULL);  // For DOOM to draw on
 
 	screenvisible = true;
 
@@ -246,11 +247,7 @@ void I_UpdateNoBlit (void)
 {
 }
 
-//
-// I_FinishUpdate
-//
-
-void I_FinishUpdate (void)
+static inline void I_CopyFrameBufferRGB565(void)
 {
 	for(int y = 0; y < SCREENHEIGHT; y++)
 	{
@@ -260,6 +257,40 @@ void I_FinishUpdate (void)
 			DG_ScreenBuffer[offset] = rgb565_palette[I_VideoBuffer[offset]];
 		}
 	}
+}
+
+static inline void I_ScaleFBNearestNeighbourRGB565(void)
+{
+	const int x_ratio = (SCREENWIDTH << 16) / DOOMGENERIC_RESX;
+	const int y_ratio = (SCREENHEIGHT << 16) / DOOMGENERIC_RESY;
+
+	for (int y = 0; y < DOOMGENERIC_RESY; y++)
+	{
+		const int y2_xsource = ((y * y_ratio) >> 16) * SCREENWIDTH;
+		const int i_xdest = y * DOOMGENERIC_RESX;
+
+		for (int x = 0; x < DOOMGENERIC_RESX; x++)
+		{
+			const int x2 = ((x * x_ratio) >> 16);
+			const int y2_x2_colors = y2_xsource + x2;
+			const int i_x_colors = i_xdest + x;
+
+			DG_ScreenBuffer[i_x_colors] = rgb565_palette[I_VideoBuffer[y2_x2_colors]];
+		}
+	}
+}
+
+//
+// I_FinishUpdate
+//
+
+void I_FinishUpdate (void)
+{
+#if SHOULD_RESCALE
+	I_ScaleFBNearestNeighbourRGB565();
+#else
+	I_CopyFrameBufferRGB565();
+#endif
 
 	DG_DrawFrame();
 }
@@ -275,7 +306,7 @@ void I_ReadScreen (byte* scr)
 //
 // I_SetPalette
 //
-#define GFX_RGB565(r, g, b)			((((r & 0xF8) >> 3) << 11) | (((g & 0xFC) >> 2) << 5) | ((b & 0xF8) >> 3))
+#define GFX_RGB565(r, g, b)			((((r) >> 3) << 11) | (((g) >> 2) << 5) | ((b) >> 3))
 #define GFX_RGB565_R(color)			((0xF800 & color) >> 11)
 #define GFX_RGB565_G(color)			((0x07E0 & color) >> 5)
 #define GFX_RGB565_B(color)			(0x001F & color)
@@ -284,10 +315,18 @@ void I_SetPalette (byte* palette)
 {
 	for (int i=0; i < 256 ; i++)
 	{
-		uint16_t color = ((palette[0] >> 3) << 11) + ((palette[1] >> 2) << 5) + (palette[2] >> 3);
-		rgb565_palette[i]= (color >> 8) + (color << 8);
+		uint16_t color = GFX_RGB565(palette[0], palette[1], palette[2]);
+		rgb565_palette[i] = (color >> 8) | (color << 8);
 		palette += 3;
 	}
+
+//	for (int i = 0; i < 256; ++i )
+//	{
+//		colors[i].a = 0;
+//		colors[i].r = gammatable[usegamma][*palette++];
+//		colors[i].g = gammatable[usegamma][*palette++];
+//		colors[i].b = gammatable[usegamma][*palette++];
+//	}
 }
 
 // Given an RGB value, find the closest matching palette index.

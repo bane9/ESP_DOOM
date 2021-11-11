@@ -2,7 +2,7 @@ file(GLOB DoomSources *.c)
 file(GLOB PlatformSources platform/*.c)
 
 idf_component_register(SRCS ${DoomSources} ${PlatformSources}
-                    INCLUDE_DIRS "include")
+                    INCLUDE_DIRS "include" "platform")
 
 set(NEW_FLAGS
 	-Wno-char-subscripts
