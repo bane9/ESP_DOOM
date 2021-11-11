@@ -53,6 +53,15 @@ const int a[][2] = {
 		{KEY_ENTER,         0},
 		{KEY_ENTER,         1},
 		{KEY_ENTER,         0},
+
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       0},
 };
 int index1 = 0;
 
