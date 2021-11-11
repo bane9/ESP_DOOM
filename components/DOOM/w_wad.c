@@ -270,6 +270,11 @@ int W_CheckNumForName (char* name)
         
         for (lump_p = lumphash[hash]; lump_p != NULL; lump_p = lump_p->next)
         {
+        	if(lump_p->name[0] == '\0')
+        	{
+        		continue;
+        	}
+
             if (!strncasecmp(lump_p->name, name, 8))
             {
                 return lump_p - lumpinfo;

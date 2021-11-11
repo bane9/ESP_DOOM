@@ -42,11 +42,13 @@ static void init_lookup_tables(void)
 	extern void R_DrawSegsInit(void);
 	extern void R_MainBufferInit(void);
 	extern void R_PlaneInit(void);
+	extern void tables_init(void);
 
 	info_init();
 	R_DrawSegsInit();
 	R_MainBufferInit();
 	R_PlaneInit();
+	tables_init();
 }
 
 #include "esp_system.h"

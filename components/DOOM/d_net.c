@@ -94,11 +94,11 @@ static void RunTic(ticcmd_t *cmds, boolean *ingame)
     G_Ticker ();
 }
 
-static loop_interface_t doom_loop_interface = {
-    D_ProcessEvents,
-    G_BuildTiccmd,
-    RunTic,
-    M_Ticker
+static const loop_interface_t doom_loop_interface = {
+    .ProcessEvents = D_ProcessEvents,
+    .BuildTiccmd = G_BuildTiccmd,
+    .RunTic = RunTic,
+    .RunMenu = M_Ticker
 };
 
 

@@ -94,8 +94,8 @@ void ILI9341_init(void)
 	    {0x11, {0}, 0x80},
 	    {0x29, {0}, 0x80},
 		{0x2A, {0, 0, ILI9341_WIDTH >> 8, ILI9341_WIDTH & 0xff}, 4},
-		{0x2B, {0, 0, ILI9341_HEIGHT >> 8, ILI9341_HEIGHT & 0xff}, 4},
-		{0x2C, {0}, 0},
+//		{0x2B, {0, 0, ILI9341_HEIGHT >> 8, ILI9341_HEIGHT & 0xff}, 4},
+//		{0x2C, {0}, 0},
 	};
 
 	const spi_bus_config_t buscfg =
@@ -105,7 +105,7 @@ void ILI9341_init(void)
 		.sclk_io_num = PIN_NUM_CLK,
 		.quadwp_io_num = -1,
 		.quadhd_io_num = -1,
-		.max_transfer_sz = ILI9341_HEIGHT * ILI9341_WIDTH * sizeof(uint16_t)
+		.max_transfer_sz = ILI9341_WIDTH * sizeof(uint16_t)
 	};
 
 	const spi_device_interface_config_t devcfg =
@@ -149,25 +149,45 @@ void ILI9341_init(void)
 
 	gpio_set_level(PIN_NUM_BCKL, 0);
 
-	frame_buffer_transaction.length = ILI9341_WIDTH * ILI9341_HEIGHT * sizeof(uint16_t) * 8;
+	frame_buffer_transaction.length = ILI9341_WIDTH * sizeof(uint16_t) * 8;
 	frame_buffer_transaction.flags = 0;
 
 	gpio_set_level(PIN_NUM_DC, 1);
 }
 
+uint16_t* buffer_;
+
 void ILI9341_set_buffer(uint16_t buffer[ILI9341_WIDTH * ILI9341_HEIGHT])
 {
 	frame_buffer_transaction.tx_buffer = buffer;
+
+	buffer_ = buffer;
 }
 
 void ILI9341_draw_buffer(void)
 {
-	spi_device_queue_trans(spi, &frame_buffer_transaction, portMAX_DELAY);
+	//spi_device_queue_trans(spi, &frame_buffer_transaction, portMAX_DELAY);
+
+	for(int y = 0; y < ILI9341_HEIGHT; y++)
+	{
+		const lcd_init_cmd_t lcd_init_cmds =
+		{
+			0x2B, {y >> 8, y & 0xff, (y + 1) >> 8, (y + 1) & 0xff}, 4,
+		};
+
+		lcd_cmd(spi, lcd_init_cmds.cmd);
+
+		lcd_data(spi, lcd_init_cmds.data, lcd_init_cmds.databytes);
+
+		lcd_cmd(spi, 0x2C);
+
+		lcd_data(spi, buffer_ + y * ILI9341_WIDTH, ILI9341_WIDTH * sizeof(uint16_t));
+	}
 }
 
 void ILI9341_wait_for_draw_complete(void)
 {
-	spi_transaction_t* rtrans;
+	//spi_transaction_t* rtrans;
 
-	spi_device_get_trans_result(spi, &rtrans, portMAX_DELAY);
+	//spi_device_get_trans_result(spi, &rtrans, portMAX_DELAY);
 }

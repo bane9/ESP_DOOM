@@ -151,35 +151,35 @@ void S_Shutdown(void)
 
 static void S_StopChannel(int cnum)
 {
-    int i;
-    channel_t *c;
-
-    c = &channels[cnum];
-
-    if (c->sfxinfo)
-    {
-        // stop the sound playing
-
-        if (I_SoundIsPlaying(c->handle))
-        {
-            I_StopSound(c->handle);
-        }
-
-        // check to see if other channels are playing the sound
-
-        for (i=0; i<snd_channels; i++)
-        {
-            if (cnum != i && c->sfxinfo == channels[i].sfxinfo)
-            {
-                break;
-            }
-        }
-        
-        // degrade usefulness of sound data
-
-        c->sfxinfo->usefulness--;
-        c->sfxinfo = NULL;
-    }
+//    int i;
+//    channel_t *c;
+//
+//    c = &channels[cnum];
+//
+//    if (c->sfxinfo)
+//    {
+//        // stop the sound playing
+//
+//        if (I_SoundIsPlaying(c->handle))
+//        {
+//            I_StopSound(c->handle);
+//        }
+//
+//        // check to see if other channels are playing the sound
+//
+//        for (i=0; i<snd_channels; i++)
+//        {
+//            if (cnum != i && c->sfxinfo == channels[i].sfxinfo)
+//            {
+//                break;
+//            }
+//        }
+//
+//        // degrade usefulness of sound data
+//
+//        c->sfxinfo->usefulness--;
+//        c->sfxinfo = NULL;
+//    }
 }
 
 //
@@ -600,50 +600,50 @@ void S_StartMusic(int m_id)
 
 void S_ChangeMusic(int musicnum, int looping)
 {
-    musicinfo_t *music = NULL;
-    char namebuf[9];
-    void *handle;
-
-    // The Doom IWAD file has two versions of the intro music: d_intro
-    // and d_introa.  The latter is used for OPL playback.
-
-    if (musicnum == mus_intro && (snd_musicdevice == SNDDEVICE_ADLIB
-                               || snd_musicdevice == SNDDEVICE_SB))
-    {
-        musicnum = mus_introa;
-    }
-
-    if (musicnum <= mus_None || musicnum >= NUMMUSIC)
-    {
-        I_Error("Bad music number %d", musicnum);
-    }
-    else
-    {
-        music = &S_music[musicnum];
-    }
-
-    if (mus_playing == music)
-    {
-        return;
-    }
-
-    // shutdown old music
-    S_StopMusic();
-
-    // get lumpnum if neccessary
-    if (!music->lumpnum)
-    {
-        M_snprintf(namebuf, sizeof(namebuf), "d_%s", DEH_String(music->name));
-        music->lumpnum = W_GetNumForName(namebuf);
-    }
-
-    music->data = W_CacheLumpNum(music->lumpnum, PU_STATIC);
-
-    handle = I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
-    music->handle = handle;
-    I_PlaySong(handle, looping);
-
-    mus_playing = music;
+//    musicinfo_t *music = NULL;
+//    char namebuf[9];
+//    void *handle;
+//
+//    // The Doom IWAD file has two versions of the intro music: d_intro
+//    // and d_introa.  The latter is used for OPL playback.
+//
+//    if (musicnum == mus_intro && (snd_musicdevice == SNDDEVICE_ADLIB
+//                               || snd_musicdevice == SNDDEVICE_SB))
+//    {
+//        musicnum = mus_introa;
+//    }
+//
+//    if (musicnum <= mus_None || musicnum >= NUMMUSIC)
+//    {
+//        I_Error("Bad music number %d", musicnum);
+//    }
+//    else
+//    {
+//        music = &S_music[musicnum];
+//    }
+//
+//    if (mus_playing == music)
+//    {
+//        return;
+//    }
+//
+//    // shutdown old music
+//    S_StopMusic();
+//
+//    // get lumpnum if neccessary
+//    if (!music->lumpnum)
+//    {
+//        M_snprintf(namebuf, sizeof(namebuf), "d_%s", DEH_String(music->name));
+//        music->lumpnum = W_GetNumForName(namebuf);
+//    }
+//
+//    music->data = W_CacheLumpNum(music->lumpnum, PU_STATIC);
+//
+//    handle = I_RegisterSong(music->data, W_LumpLength(music->lumpnum));
+//    music->handle = handle;
+//    I_PlaySong(handle, looping);
+//
+//    mus_playing = music;
 }
 
 boolean S_MusicPlaying(void)

@@ -1862,7 +1862,7 @@ const int finesine[10240] =
     65534,65535,65535,65535,65535,65535,65535,65535
 };
 
-const fixed_t *finecosine = &finesine[FINEANGLES/4];
+const fixed_t *finecosine;
 
 const angle_t tantoangle[2049] =
 {
@@ -2225,3 +2225,7 @@ const byte gammatable[5][256] =
     }
 };
 
+void tables_init(void)
+{
+	finecosine = finesine + 2048; // Static initialization weirdness? Can't tell why its null by default
+}
