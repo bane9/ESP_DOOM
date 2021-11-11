@@ -523,6 +523,18 @@ void D_DoAdvanceDemo (void)
     else
       demosequence = (demosequence+1)%6;
     
+    static int once = 0;
+
+	if(!once)
+	{
+		once = 1;
+	}
+	else
+	{
+		advancedemo = false;
+		return;
+	}
+
     switch (demosequence)
     {
       case 0:
