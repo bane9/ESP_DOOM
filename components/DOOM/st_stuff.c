@@ -439,7 +439,12 @@ boolean
 ST_Responder (event_t* ev)
 {
   int		i;
-    
+
+  if(!plyr)
+  {
+	  return false;
+  }
+
   // Filter automap on/off.
   if (ev->type == ev_keyup
       && ((ev->data1 & 0xffff0000) == AM_MSGHEADER))
