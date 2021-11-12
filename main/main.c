@@ -1,12 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
 #include "esp_err.h"
 #include "nvs_flash.h"
 #include "esp_partition.h"
 
 const void* wad_partition_ptr; // I cannot include nvs_flash and esp_partition in components for some reason so this lives here..
 uint32_t wad_partition_size;
+
+static void run_doom(void *pvParameters)
+{
+	extern int doom_main(int argc, char **argv);
+
+	char* argv[] = {"doom", "-mb", "3","-iwad", "doom1.wad", NULL};
+	int argc = sizeof(argv) / sizeof(argv[0]) - 1;
+
+	doom_main(argc, argv);
+}
 
 void app_main(void)
 {
@@ -23,10 +36,5 @@ void app_main(void)
 
 	wad_partition_size = partition->size;
 
-	extern int doom_main(int argc, char **argv);
-
-	char* argv[] = {"doom", "-mb", "3","-iwad", "doom1.wad", NULL};
-	int argc = sizeof(argv) / sizeof(argv[0]) - 1;
-
-	doom_main(argc, argv);
+	xTaskCreatePinnedToCore(run_doom, "doom", 22480, NULL, configMAX_PRIORITIES - 1, NULL, 0);
 }

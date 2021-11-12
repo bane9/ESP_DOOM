@@ -17,6 +17,7 @@ void DG_Init()
 
 	DG_ScreenBuffer = calloc(ILI9341_WIDTH * ILI9341_HEIGHT, sizeof(uint16_t));
 
+	time_since_last_key = DG_GetTicksMs();
 
 	ILI9341_set_buffer(DG_ScreenBuffer);
 }
@@ -28,6 +29,12 @@ void DG_DrawFrame()
 	ILI9341_draw_buffer();
 
 	ILI9341_wait_for_draw_complete();
+
+	if(!drew_first_frame)
+	{
+
+
+	}
 
 	drew_first_frame = 1;
 }
@@ -59,9 +66,51 @@ const int a[][2] = {
 		{KEY_UPARROW,       1},
 		{KEY_UPARROW,       1},
 		{KEY_UPARROW,       1},
+		//{KEY_UPARROW,       1},
+		{KEY_UPARROW,       0},
+		{KEY_LEFTARROW,       1},
+		{KEY_LEFTARROW,       1},
+		{KEY_LEFTARROW,       1},
+		{KEY_LEFTARROW,       0},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
 		{KEY_UPARROW,       1},
 		{KEY_UPARROW,       1},
 		{KEY_UPARROW,       0},
+		{KEY_LEFTARROW,       1},
+		{KEY_LEFTARROW,       0},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		//{KEY_UPARROW,       1},
+		{KEY_UPARROW,       0},
+		{KEY_RIGHTARROW,       1},
+		{KEY_RIGHTARROW,       0},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       0},
+		{KEY_LEFTARROW,       1},
+		{KEY_LEFTARROW,       0},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       0},
+		{KEY_RIGHTARROW,       1},
+		{KEY_RIGHTARROW,       0},
+		{KEY_UPARROW,       1},
+		{KEY_UPARROW,       0},
+		{KEY_FIRE,       1},
+		{KEY_FIRE,       0},
+		{KEY_FIRE,       1},
+		{KEY_FIRE,       0},
+		{KEY_FIRE,       1},
+		{KEY_FIRE,       0},
 };
 int index1 = 0;
 
@@ -75,7 +124,7 @@ int DG_GetKey(int* pressed, unsigned char* key)
 	{
 		return 0;
 	}
-	if(DG_GetTicksMs() - time_since_last_key > 100)
+	if(DG_GetTicksMs() - time_since_last_key > 200)
 	{
 		*pressed = a[index1][1];
 		*key = a[index1][0];
