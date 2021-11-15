@@ -15,7 +15,7 @@ static void run_doom(void *pvParameters)
 {
 	extern int doom_main(int argc, char **argv);
 
-	char* argv[] = {"doom", "-mb", "3","-iwad", "doom1.wad", NULL};
+	char* argv[] = {"doom", "-mb", "3", "-iwad", "doom1.wad", NULL};
 	int argc = sizeof(argv) / sizeof(argv[0]) - 1;
 
 	doom_main(argc, argv);

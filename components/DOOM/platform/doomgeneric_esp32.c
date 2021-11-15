@@ -116,22 +116,22 @@ int index1 = 0;
 
 int DG_GetKey(int* pressed, unsigned char* key)
 {
-	if(!drew_first_frame)
-	{
-		return 0;
-	}
-	if(index1 == sizeof(a) / sizeof(a[0]))
-	{
-		return 0;
-	}
-	if(DG_GetTicksMs() - time_since_last_key > 200)
-	{
-		*pressed = a[index1][1];
-		*key = a[index1][0];
-		time_since_last_key = DG_GetTicksMs();
-		++index1;
-		return 1;
-	}
+//	if(!drew_first_frame)
+//	{
+//		return 0;
+//	}
+//	if(index1 == sizeof(a) / sizeof(a[0]))
+//	{
+//		return 0;
+//	}
+//	if(DG_GetTicksMs() - time_since_last_key > 200)
+//	{
+//		*pressed = a[index1][1];
+//		*key = a[index1][0];
+//		time_since_last_key = DG_GetTicksMs();
+//		++index1;
+//		return 1;
+//	}
 	return 0;
 }
 
